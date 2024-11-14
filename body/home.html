@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Form Example</title>
+</head>
+
+<body>
+    <form id="indemnityForm">
+        <div id="errorMessage" style="color: red;"></div>
+
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name" required><br><br>
+
+        <label for="surname">Surname:</label>
+        <input type="text" id="surname" name="surname" required><br><br>
+
+        <label for="phone">Cellphone Number:</label>
+        <input type="tel" id="phone" name="phone" required><br><br>
+
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required><br><br>
+
+        <button type="button" onclick="submitForm()">Submit</button>
+        <button type="button" onclick="clearFile()">Clear File</button>
+        <button type="button" onclick="deleteLastEntry()">Delete Last Entry</button>
+    </form>
+    <hr>
+
+    <div>
+        <lable for="search">Search:</lable>
+        <input type="text" id="search" name="search" placeholder="Enter name, surname, phone or email">
+        <button type="button" onclick="searchEntry()">Search</button>
+    </div>
+
+    <div id="searchResults"></div>
+
+    <script src="app.js"></script>
+</body>
+
+</html>
