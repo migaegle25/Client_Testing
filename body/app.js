@@ -1,54 +1,52 @@
-const serverURL = 'http://migaelpc:3000';
-
-
-document.addEventListener('DOMContentLoaded', () => {
-    const form = document.getElementById('indemnityForm');
-    form.addEventListener('submit', submitForm);
-});
+const serverUrl = 'http://migaelpc:3000'; // Replace with your desktop PC's IP address
 
 function submitForm(event) {
-    if (event) event.preventDefault();
+    if (event) event.preventDefault(); // Prevent the default form submission
 
-    const name = document.getElementById('name').value.trim().toLowerCase();
-    const surname = document.getElementById('surname').value.trim().toLowerCase();
-    const phone = document.getElementById('phone').value.trim().toLowerCase().replace(/\s+/g, '');
-    const email = document.getElementById('email').value.trim().toLowerCase();
+    const name = document.getElementById('name').value.trim();
+    const surname = document.getElementById('surname').value.trim();
+    const phone = document.getElementById('phone').value.trim().replace(/\s+/g, ''); // Remove spaces
+    const email = document.getElementById('email').value.trim();
 
-    const data = { name, surname, phone, email };
 
-    fetch(`${serverURL}/check`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(data)
-    })
-        .then(response => response.json())
-        .then(result => {
-            if (result.exists) {
-                document.getElementById('errorMessage').innerText = 'Error: User data already exists';
-            } else {
-                fetch(`${serverURL}/submit`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(data)
-                })
-                    .then(response => response.json())
-                    .then(result => {
-                        alert(`Data saved successfully. Your unique code is: ${result.uniqueCode}`);
-                        document.getElementById('indemnityForm').reset(); // Clear the input boxes
-                        document.getElementById('errorMessage').innerText = ''; // Clear the error message
-                    })
-                    .catch(error => console.error('Error:', error));
-            }
+    if (name && surname && phone && email) {
+        const data = { name, surname, phone, email };
+        fetch(`${serverUrl}/check`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
         })
-        .catch(error => console.error('Error:', error));
+            .then(response => response.json())
+            .then(result => {
+                if (result.exists) {
+                    document.getElementById('errorMessage').innerText = 'Error: User data already exists';
+                } else {
+                    fetch(`${serverUrl}/submit`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(data)
+                    })
+                        .then(response => response.json())
+                        .then(result => {
+                            alert(`Data saved successfully. Your unique code is: ${result.uniqueCode}`);
+                            document.getElementById('indemnityForm').reset(); // Clear the input boxes
+                            document.getElementById('errorMessage').innerText = ''; // Clear the error message
+                        })
+                        .catch(error => console.error('Error:', error));
+                }
+            })
+            .catch(error => console.error('Error:', error));
+    } else {
+        document.getElementById("errorMessage").innerText = 'Error: All the fields are required';
+    }
 }
 
 function clearFile() {
-    fetch(`${serverURL}/clear`, {
+    fetch(`${serverUrl}/clear`, {
         method: 'POST'
     })
         .then(response => response.text())
@@ -57,7 +55,7 @@ function clearFile() {
 }
 
 function deleteLastEntry() {
-    fetch(`${serverURL}/deleteLastEntry`, {
+    fetch(`${serverUrl}/deleteLastEntry`, {
         method: 'POST'
     })
         .then(response => response.text())
@@ -68,7 +66,7 @@ function deleteLastEntry() {
 function searchEntry() {
     let query = document.getElementById('search').value.trim(); // Trim the input value
 
-    fetch(`${serverURL}/search?query=${encodeURIComponent(query)}`)
+    fetch(`${serverUrl}/search?query=${encodeURIComponent(query)}`)
         .then(response => response.json())
         .then(results => {
             const searchResultsDiv = document.getElementById('searchResults');
@@ -83,7 +81,7 @@ function searchEntry() {
                     <p>Surname: ${entry.surname}</p>
                     <p>Cellphone Number: ${entry.phone}</p>
                     <p>Email: ${entry.email}</p>
-                    <p>Unique Code: ${entry.uniqueCode}</p>
+                    <p>UniqueCode: ${entry.uniqueCode}</p>
                     <hr>
                 `;
                     searchResultsDiv.appendChild(entryDiv);
@@ -94,3 +92,10 @@ function searchEntry() {
         })
         .catch(error => console.error('Error:', error));
 }
+
+function clearForm() {
+    document.getElementById('indemnityForm').reset(); // Clear the input boxes
+    document.getElementById('errorMessage').innerText = '';
+    document.getElementById('searchResults').innerText = '';
+    document.getElementById('search').clear;
+} 

@@ -2,6 +2,7 @@ const express = require('express');
 const fs = require('fs');
 const cors = require('cors');
 const path = require('path');
+const e = require('express');
 const app = express();
 const port = 3000;
 
@@ -17,21 +18,25 @@ app.use(express.json());
 app.post('/check', (req, res) => {
     const { name, surname, phone, email } = req.body;
 
+    // Remove spaces from the phone number
     const cleanedPhone = phone.replace(/\s+/g, '');
+    const cleanedName = name.toLowerCase();
+    const cleanedSurname = surname.toLowerCase();
+    const cleanedEmail = email.toLowerCase();
 
     fs.readFile(filePath, 'utf8', (err, data) => {
         if (err && err.code !== 'ENOENT') {
             console.error('Error reading file', err);
-            res.status(500).send('Error reading file');
+            res.status(500).json({ error: 'Error reading file' });
             return;
         }
 
         const entries = data ? JSON.parse(data) : [];
         const exists = entries.some(entry =>
-            entry.name === name &&
-            entry.surname === surname &&
-            entry.phone === phone.replace(/\s+/g, '') === cleanedPhone &&
-            entry.email === email
+            entry.name === cleanedName &&
+            entry.surname === cleanedSurname &&
+            entry.phone.replace(/\s+/g, '') === cleanedPhone &&
+            entry.email === cleanedEmail
         );
 
         res.json({ exists });
@@ -41,30 +46,50 @@ app.post('/check', (req, res) => {
 app.post('/submit', (req, res) => {
     const { name, surname, phone, email } = req.body;
 
+    // Remove spaces from the phone number
+    const cleanedPhone = phone.replace(/\s+/g, '');
+    const cleanedName = name.toLowerCase();
+    const cleanedSurname = surname.toLowerCase();
+    const cleanedEmail = email.toLowerCase();
+
     fs.readFile(filePath, 'utf8', (err, data) => {
         if (err && err.code !== 'ENOENT') {
             console.error('Error reading file', err);
-            res.status(500).send('Error reading file');
+            res.status(500).json({ error: 'Error reading file' });
             return;
         }
 
         const entries = data ? JSON.parse(data) : [];
+        const exists = entries.some(entry =>
+            entry.name === cleanedName &&
+            entry.surname === cleanedSurname &&
+            entry.phone.replace(/\s+/g, '') === cleanedPhone &&
+            entry.email === cleanedEmail
+        );
+
+        if (exists) {
+            res.status(400).json({ error: 'Client information already exists' });
+            return;
+        }
+
         const entryNumber = entries.length + 1;
 
         // Generate unique code
-        const firstLetterName = name.charAt(0).toUpperCase();
-        const lastLetterSurname = surname.charAt(surname.length - 1).toUpperCase();
-        const lastLetterName = name.charAt(name.length - 1).toUpperCase();
-        const firstLetterSurname = surname.charAt(0).toUpperCase();
-        const randomNumbers = phone.slice(0, 4);
+        const firstLetterName = cleanedName.charAt(0).toUpperCase();
+        const lastLetterSurname = cleanedSurname.charAt(surname.length - 1).toUpperCase();
+        const lastLetterName = cleanedName.charAt(name.length - 1).toUpperCase();
+        const firstLetterSurname = cleanedSurname.charAt(0).toUpperCase();
+        const randomNumbers = cleanedPhone.slice(0, 4);
         const uniqueCode = `${firstLetterName}${lastLetterSurname}${randomNumbers}${lastLetterName}${firstLetterSurname}`;
 
-        entries.push({ entryNumber, name, surname, phone, email, uniqueCode });
+
+
+        entries.push({ entryNumber, name: cleanedName, surname: cleanedSurname, phone: cleanedPhone, email: cleanedEmail, uniqueCode });
 
         fs.writeFile(filePath, JSON.stringify(entries, null, 2), (err) => {
             if (err) {
                 console.error('Error writing to file', err);
-                res.status(500).send('Error writing to file');
+                res.status(500).json({ error: 'Error writing to file' });
             } else {
                 res.json({ message: 'Data saved successfully', uniqueCode });
             }
