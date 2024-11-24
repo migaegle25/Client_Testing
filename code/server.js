@@ -4,6 +4,9 @@ const cors = require('cors');
 const path = require('path');
 const e = require('express');
 const app = express();
+
+// const bcrypt = require('bcrypt');
+
 const port = 3000;
 
 // Define the path to the storage folder and data.json file
@@ -86,7 +89,7 @@ app.post('/submit', (req, res) => {
 
         entries.push({ entryNumber, name: cleanedName, surname: cleanedSurname, phone: cleanedPhone, email: cleanedEmail, uniqueCode });
 
-        fs.writeFile(filePath, JSON.stringify(entries, null, 2), (err) => {
+        fs.writeFile(filePath, JSON.stringify(entries, null | undefined, 2), (err) => {
             if (err) {
                 console.error('Error writing to file', err);
                 res.status(500).json({ error: 'Error writing to file' });
