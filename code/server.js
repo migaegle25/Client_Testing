@@ -95,7 +95,6 @@ app.post('/submit', (req, res) => {
                 res.status(500).json({ error: 'Error writing to file' });
             } else {
                 res.json({ message: 'Data saved successfully', uniqueCode });
-                console.log("Data Saved1234");
             }
         });
     });
