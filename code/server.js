@@ -18,6 +18,10 @@ app.use(express.static(path.join(__dirname, '..', 'body')));
 app.use(cors());
 app.use(express.json());
 
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, '../body/home.html'));
+});
+
 app.post('/check', (req, res) => {
     const { name, surname, phone, email } = req.body;
 

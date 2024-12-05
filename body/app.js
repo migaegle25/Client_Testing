@@ -1,4 +1,4 @@
-const serverUrl = 'http://migaelpc:3000'; // Replace with your desktop PC's IP address
+const serverUrl = 'http://localhost:3000'; // Replace with your desktop PC's IP address
 
 function submitForm(event) {
     if (event) event.preventDefault(); // Prevent the default form submission
@@ -8,41 +8,52 @@ function submitForm(event) {
     const phone = document.getElementById('phone').value.trim().replace(/\s+/g, ''); // Remove spaces
     const email = document.getElementById('email').value.trim();
 
-
-    if (name && surname && phone && email) {
-        const data = { name, surname, phone, email };
-        fetch(`${serverUrl}/check`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(data)
-        })
-            .then(response => response.json())
-            .then(result => {
-                if (result.exists) {
-                    document.getElementById('errorMessage').innerText = 'Error: User data already exists';
-                } else {
-                    fetch(`${serverUrl}/submit`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify(data)
-                    })
-                        .then(response => response.json())
-                        .then(result => {
-                            alert(`Data saved successfully. Your unique code is: ${result.uniqueCode}`);
-                            document.getElementById('indemnityForm').reset(); // Clear the input boxes
-                            document.getElementById('errorMessage').innerText = ''; // Clear the error message
-                        })
-                        .catch(error => console.error('Error:', error));
-                }
-            })
-            .catch(error => console.error('Error:', error));
-    } else {
-        document.getElementById("errorMessage").innerText = 'Error: All the fields are required';
+    //Field validation
+    if (!name || !surname || !phone) {
+        document.getElementById('errorMessage').innerText = 'Error: Name, Surname and Phone Num are required';
+        return;
     }
+
+    if (email && !validateEmail(email)) {
+        document.getElementById('errorMessage').innerHTML = 'Error: Please enter a valid email address';
+        return;
+    }
+
+    const data = { name, surname, phone, email };
+    fetch(`${serverUrl}/check`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+    })
+        .then(response => response.json())
+        .then(result => {
+            if (result.exists) {
+                document.getElementById('errorMessage').innerText = 'Error: User data already exists';
+            } else {
+                fetch(`${serverUrl}/submit`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                })
+                    .then(response => response.json())
+                    .then(result => {
+                        alert(`Data saved successfully. Your unique code is: ${result.uniqueCode}`);
+                        document.getElementById('indemnityForm').reset(); // Clear the input boxes
+                        document.getElementById('errorMessage').innerText = ''; // Clear the error message
+                    })
+                    .catch(error => console.error('Error:', error));
+            }
+        })
+        .catch(error => console.error('Error:', error));
+}
+
+function validateEmail(email) {
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailPattern.test(email);
 }
 
 function clearFile() {
