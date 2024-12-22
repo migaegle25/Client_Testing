@@ -1,3 +1,12 @@
+// Establish a WebSocket connection to the server
+const socket = io('http://localhost:3000');
+
+// Listen for the 'reload' event from the server
+socket.on('reload', () => {
+    location.reload();
+});
+
+// Function to handle form submission
 function submitForm(event) {
     if (event) event.preventDefault(); // Prevent the default form submission
 
@@ -29,12 +38,12 @@ function submitForm(event) {
     })
         .then(response => response.json())
         .then(result => {
-            if (result.message === 'User Information Saved Succesfully') {
+            if (result.message === 'User information saved successfully') {
                 alert(`Data saved successfully. Your unique code is: ${result.uniquecode}`);
-                document.getElementById('indemnityForm').reset(); // Clear the input boxes
+                document.getElementById('clientForm').reset(); // Clear the input boxes
                 document.getElementById('errorMessage').innerText = ''; // Clear the error message
             } else {
-                document.getElementById('errorMessage').innerText = `Alert: ${result.message}`;
+                document.getElementById('errorMessage').innerText = `Error: ${result.message}`;
             }
         })
         .catch(error => console.error('Error:', error));
