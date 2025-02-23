@@ -23,7 +23,7 @@ app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, '../body'))); // Serve static files from the Body folder
 
 // MongoDB connection
-mongoose.connect('mongodb://sniffels:27017/Client_Information')
+mongoose.connect('mongodb://localhost:27017/Client_Information')
     .then(() => {
         console.log('Successfully connected to MongoDB');
     })
