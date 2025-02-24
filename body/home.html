@@ -17,7 +17,7 @@
         <label for="surname">Surname:</label>
         <input type="text" id="surname" name="surname" required><br><br>
 
-        <label for="p ne">Cellphone Number:</label>
+        <label for="phone">Cellphone Number:</label>
         <input type="tel" id="phone" name="phone" required><br><br>
 
         <label for="email">Email (optional):</label>
@@ -30,13 +30,38 @@
     </form>
     <hr>
 
+    <!-- Search Section -->
     <div>
-        <lable for="search">Search:</lable>
-        <input type="text" id="search" name="search" placeholder="Enter name, surname, phone or email">
-        <button type="button" onclick="searchEntry()">Search</button>
+        <input type="text" id="searchQuery" placeholder="Enter name, surname, phone, or email" />
+        <button onclick="searchUser()">Search</button>
     </div>
 
+    <!-- Search Results Section -->
     <div id="searchResults"></div>
+
+    <!-- Edit Form Section -->
+    <div id="editForm" style="display:none;">
+        <h3>Edit User Information</h3>
+        <input type="hidden" id="editUserId" />
+        <p>
+            <label for="editName">Name:</label>
+            <input type="text" id="editName" />
+        </p>
+        <p>
+            <label for="editSurname">Surname:</label>
+            <input type="text" id="editSurname" />
+        </p>
+        <p>
+            <label for="editPhone">Phone:</label>
+            <input type="text" id="editPhone" />
+        </p>
+        <p>
+            <label for="editEmail">Email:</label>
+            <input type="text" id="editEmail" />
+        </p>
+        <button onclick="updateUser()">Save Changes</button>
+    </div>
+
     <script src="/socket.io/socket.io.js"></script>
     <script src="app.js"></script>
 </body>

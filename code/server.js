@@ -35,9 +35,9 @@ mongoose.connect('mongodb://localhost:27017/Client_Information')
 const userSchema = new mongoose.Schema({
     name: String,
     surname: String,
-    cellphone: String,
+    phone: String,
     email: String,
-    uniquecode: String,
+    UserID: String,
 });
 
 const User = mongoose.model('user_details', userSchema);
@@ -54,7 +54,7 @@ app.post('/submit', async (req, res) => {
         }
 
         // Generate unique code
-        const uniquecode = uuidv4();
+        const UserID = uuidv4();
 
         // Create new user
         const newUser = new User({
@@ -62,18 +62,73 @@ app.post('/submit', async (req, res) => {
             surname,
             phone,
             email,
-            uniquecode,
+            UserID,
         });
 
         // Save new user
         await newUser.save();
-        res.status(201).json({ message: 'User information saved successfully', uniquecode });
+        res.status(201).json({ message: 'User information saved successfully', UserID });
 
         // Emit reload event to clients
         io.emit('reload');
     } catch (error) {
         console.error('Error saving user information:', error);
         res.status(500).json({ message: 'Error saving user information', error });
+    }
+});
+
+//function to delete latest entry
+app.delete('/delete-latest-entry', async (req, res) => {
+    try {
+        const latestUser = await User.findOne().sort({ _id: -1 });
+        if (latestUser) {
+            await User.deleteOne({ _id: latestUser._id });
+            res.status(200).json({ message: 'latest entry deleted succesfully. ' });
+        } else {
+            res.status(404).json({ message: 'No entries Found. ' });
+        }
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
+app.delete('/delete-all-entries', async (req, res) => {
+    try {
+        const result = await User.deleteMany({});
+        res.status(200).json({ message: `${result.deletedCount} entries deleted successfully. ` });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
+app.get('/search-user', async (req, res) => {
+    const query = req.query.query;
+    console.log('Search query:', query);  // Log the search query
+    try {
+        const users = await User.find({
+            $or: [
+                { name: new RegExp(query, 'i') },
+                { surname: new RegExp(query, 'i') },
+                { phone: new RegExp(query, 'i') },
+                { email: new RegExp(query, 'i') },
+            ]
+        });
+        console.log('Search results:', users);  // Log the search results
+        res.status(200).json(users);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
+app.put('/update-user/:id', async (req, res) => {
+    const userId = req.params.id;
+    const updateData = req.body;
+
+    try {
+        const updatedUser = await User.findByIdAndUpdate(userId, updateData, { new: true });
+        res.status(200).json({ message: 'User information updated successfully.', user: updatedUser });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
     }
 });
 
